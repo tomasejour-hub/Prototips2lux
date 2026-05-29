@@ -14,5 +14,5 @@ jobs:
           username: prototg
           password: ${{ secrets.FTP_PASSWORD }}
           local_path: ./*
-          remote_path: /www/
+          remote_path: /www
           sftp_only: true
