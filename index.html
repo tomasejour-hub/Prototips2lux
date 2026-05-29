@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototips2LUX — Atelier</title>
+  <style>
+    :root {
+  --yellow:      #8c5c20;   /* ← cuivre foncé — visible sur fond clair */
+  --violet:      #607080;   /* ← ardoise — visible sur fond clair */
+  --black:       #f4ede0;   /* ← papier chaud — fond */
+  --white:       #1c1510;   /* ← brun très sombre — texte */
+      --margin-h:    64px;
+      --margin-side: 72px;
+      --nav-height:  38px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════════════
+       NAV — fixe tout en haut
+    ══════════════════════════════════════ */
+    .nav-bar {
+      position: fixed;
+      top: calc(58vh + 20px); left: 0; right: 0;
+      height: var(--nav-height);
+      z-index: 50;
+      display: flex;
+      background: rgba(244,237,224,0.96);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(140,92,32,0.2);
+      border-bottom: 1px solid rgba(140,92,32,0.2);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      color: #a08878; /* texte discret sur fond clair */
+      opacity: 1;
+      cursor: pointer;
+      border-right: 1px solid rgba(0,0,0,0.08);
+      transition: color 0.2s ease, text-shadow 0.2s ease, box-shadow 0.4s, background 0.4s;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item:last-child { border-right: none; }
+
+    /* Point d'arrivée PCB en bas du nav item */
+    .nav-dot {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px; height: 4px;
+      background: var(--violet);
+      border-radius: 50%;
+      opacity: 0;
+      box-shadow: 0 0 5px var(--violet);
+      transition: opacity 0.3s;
+    }
+
+    /* Allumé définitivement */
+    .nav-item.lit {
+      color: #f4ede0;
+      text-shadow: none;
+      background: linear-gradient(135deg, #a06a28 0%, #8c5c20 55%, #6e4410 100%);
+      box-shadow: 0 0 18px rgba(140,92,32,0.45), inset 0 0 10px rgba(180,130,70,0.25);
+    }
+
+    .nav-item.lit .nav-dot { opacity: 1; }
+
+    .nav-item:hover { opacity: 0.6; }
+    .nav-item.lit:hover { opacity: 1; }
+
+    /* Flash d'arrivée */
+    @keyframes navFlash {
+      0%   { background: rgba(140,92,32,0.35); }
+      100% { background: rgba(140,92,32,0.04); }
+    }
+
+    .nav-item.flash { animation: navFlash 0.5s ease-out forwards; }
+
+    /* ══════════════════════════════════════
+       LOGO BOOMBOX ANIMÉ — intro gauche
+    ══════════════════════════════════════ */
+    .intro-logo {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 5px;
+      align-items: center;
+      font-size: 13px;
+      line-height: 0.85;
+      letter-spacing: 0.5px;
+      opacity: 0.72;
+      filter: drop-shadow(0 0 8px rgba(184,115,51,0.18));
+      z-index: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .ilg-box {
+      white-space: pre;
+      color: #7a6a58;
+      text-shadow: none;
+      animation: ilgBreath 4s ease-in-out infinite;
+    }
+
+    .ilg-copper { color: #8c5c20; text-shadow: 0 0 5px rgba(140,92,32,0.4); }
+
+    .ilg-gold {
+      color: #7a4e18;
+      text-shadow: 0 0 4px rgba(122,78,24,0.7), 0 0 10px rgba(140,92,32,0.3);
+      animation: ilgPulse 2.2s ease-in-out infinite;
+    }
+
+    .ilg-led { color: #8c5c20; animation: ilgLed 1.8s ease-in-out infinite; }
+
+    .ilg-waves {
+      display: flex;
+      gap: 2px;
+      font-size: 15px;
+      color: rgba(80,60,40,0.22);
+      transform: translateY(-1px);
+    }
+
+    .ilg-waves span {
+      display: inline-block;
+      animation: ilgWave 1.6s ease-in-out infinite;
+    }
+    .ilg-waves span:nth-child(1) { animation-delay: 0s; }
+    .ilg-waves span:nth-child(2) { animation-delay: 0.18s; }
+    .ilg-waves span:nth-child(3) { animation-delay: 0.36s; }
+
+    @keyframes ilgBreath {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-2px); }
+    }
+
+    @keyframes ilgPulse {
+      0%, 100% { opacity: 0.8;  filter: brightness(1); }
+      50%       { opacity: 1;   filter: brightness(1.9); }
+    }
+
+    @keyframes ilgWave {
+      0%, 100% { color: rgba(80,60,40,0.18);  transform: translateX(0); text-shadow: none; }
+      50%       { color: #7a6a58; transform: translateX(2px); text-shadow: 0 0 6px rgba(100,80,55,0.35); }
+    }
+
+    @keyframes ilgLed {
+      0%, 100% { opacity: 0.4; text-shadow: none; }
+      50%       { opacity: 1;  text-shadow: 0 0 8px rgba(140,92,32,0.7); }
+    }
+
+    @media (max-width: 768px) { .intro-logo { font-size: 11px; gap: 4px; } }
+
+    /* ══════════════════════════════════════
+       INTRO
+    ══════════════════════════════════════ */
+    .intro {
+      height: 100vh;
+      padding-top: var(--nav-height);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.4rem;
+      letter-spacing: 0.25em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #pcbCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .intro h1 {
+      font-size: clamp(1.4rem, 6vw, 3.5rem);
+      font-weight: 900;
+      color: var(--yellow);
+      text-shadow: 0 0 30px rgba(140,92,32,0.2), 0 0 60px rgba(140,92,32,0.08);
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.15em;
+    }
+
+    .two {
+      display: inline-block;
+      color: #c0b0a0;
+      -webkit-text-stroke: 1.5px #c0b0a0;
+      text-stroke: 1.5px #c0b0a0;
+      transition: color 0.12s ease, -webkit-text-stroke-color 0.12s ease, text-shadow 0.12s ease;
+    }
+
+    .two.vibrating {
+      color: #8c5c20;
+      -webkit-text-stroke-color: #8c5c20;
+      text-shadow: 0 0 16px rgba(140,92,32,0.6), 0 0 6px rgba(160,110,50,0.4);
+    }
+
+    .letter-o {
+      display: inline-block;
+      position: relative;
+    }
+
+    .intro p {
+      font-size: 0.72rem;
+      opacity: 0.85;
+      letter-spacing: 0.35em;
+      color: #6a5a48;
+      white-space: nowrap;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.65;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      animation: float 2.5s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .scroll-hint svg { width: 18px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(7px); }
+    }
+
+    /* ══════════════════════════════════════
+       DESKTOP SPACER + VIEWER
+    ══════════════════════════════════════ */
+    .panorama-section { height: 500vh; position: relative; }
+
+    .panorama-viewer {
+      position: fixed; inset: 0; z-index: 10;
+      background: var(--black);
+      display: grid;
+      grid-template-rows: var(--margin-h) 1fr var(--margin-h);
+      grid-template-columns: var(--margin-side) 1fr var(--margin-side);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .panorama-viewer.active { opacity: 1; pointer-events: auto; }
+
+    .margin-top {
+      grid-column: 1 / -1; grid-row: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .margin-top .brand { font-size: 0.85rem; font-weight: 900; letter-spacing: 0.3em; color: var(--yellow); }
+    .margin-top .tagline { font-size: 0.58rem; letter-spacing: 0.25em; opacity: 0.45; }
+
+    .margin-bottom {
+      grid-column: 1 / -1; grid-row: 3;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; border-top: 1px solid rgba(0,0,0,0.1); gap: 1.5rem;
+    }
+
+    .progress-wrap { flex: 1; display: flex; align-items: center; gap: 0.8rem; }
+    .progress-track { flex: 1; height: 1px; background: rgba(0,0,0,0.15); position: relative; }
+    .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--yellow); transition: width 0.05s linear; }
+    .progress-pct { font-size: 0.58rem; letter-spacing: 0.2em; color: var(--yellow); opacity: 0.5; min-width: 2.5rem; }
+
+    .scroll-cue { display: flex; align-items: center; gap: 0.5rem; font-size: 0.55rem; letter-spacing: 0.2em; opacity: 0.3; transition: opacity 0.5s; white-space: nowrap; }
+    .scroll-cue.hidden { opacity: 0; }
+    .scroll-cue svg { width: 14px; animation: bounce-x 1.8s ease-in-out infinite; }
+
+    @keyframes bounce-x {
+      0%, 100% { transform: translateX(0); }
+      50%       { transform: translateX(5px); }
+    }
+
+    .margin-left {
+      grid-column: 1; grid-row: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2rem;
+      border-right: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .margin-right {
+      grid-column: 3; grid-row: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2rem;
+      border-left: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .side-arrow { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; opacity: 0.25; transition: opacity 0.6s ease; }
+    .side-arrow svg { width: 16px; color: var(--yellow); }
+    .side-arrow span { writing-mode: vertical-rl; font-size: 0.48rem; letter-spacing: 0.25em; color: var(--yellow); }
+    .arrow-pulse { animation: arrow-anim 2s ease-in-out infinite; }
+
+    @keyframes arrow-anim {
+      0%, 100% { transform: translateY(0);   opacity: 0.25; }
+      50%       { transform: translateY(4px); opacity: 0.55; }
+    }
+
+    .side-arrow.hidden { opacity: 0 !important; }
+    .side-text { writing-mode: vertical-rl; font-size: 0.48rem; letter-spacing: 0.3em; opacity: 0.18; color: var(--white); text-transform: uppercase; user-select: none; }
+
+    .panorama-window { grid-column: 2; grid-row: 2; overflow: hidden; position: relative; box-shadow: inset 8px 0 20px rgba(0,0,0,0.12), inset -8px 0 20px rgba(0,0,0,0.12); }
+    .panorama-track { position: absolute; top: 0; left: 0; height: 100%; width: max-content; will-change: transform; user-select: none; }
+    .panorama-image { display: block; height: 100%; width: auto; max-width: none; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+
+    .hotspot { position: absolute; transform: translate(-50%,-50%); width: 34px; height: 34px; cursor: pointer; z-index: 3; }
+    .hotspot-ring { position: absolute; inset: 0; border: 2px solid var(--yellow); border-radius: 50%; animation: pulse 2.5s ease-in-out infinite; }
+    .hotspot-dot { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 7px; height: 7px; background: var(--yellow); border-radius: 50%; box-shadow: 0 0 8px var(--yellow); }
+    .hotspot-label { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; letter-spacing: 0.12em; color: var(--yellow); white-space: nowrap; opacity: 0; transition: opacity 0.2s; background: rgba(244,237,224,0.94); padding: 2px 6px; pointer-events: none; border: 1px solid rgba(140,92,32,0.2); }
+    .hotspot:hover .hotspot-label { opacity: 1; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);   opacity: 0.9; }
+      50%       { transform: scale(1.6); opacity: 0.2; }
+    }
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(6px); }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal { background: #faf6ef; border: 1px solid rgba(140,92,32,0.22); max-width: 500px; width: 100%; position: relative; transform: translateY(20px); transition: transform 0.3s ease; overflow: hidden; color: #f0f0e0; }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-photo { width: 100%; height: 240px; object-fit: cover; object-position: center; display: block; filter: brightness(0.9); }
+    .modal-body { padding: 1.5rem; }
+    .modal-tag { font-size: 0.56rem; letter-spacing: 0.35em; color: #8c5c20; opacity: 0.85; margin-bottom: 0.45rem; }
+    .modal h2 { font-size: 1.25rem; font-weight: 900; letter-spacing: 0.1em; color: #6e4410; margin-bottom: 0.85rem; }
+    .modal p { font-size: 0.76rem; line-height: 1.8; opacity: 0.75; margin-bottom: 1.3rem; color: #3a2e20; }
+    .modal-link { display: inline-block; border: 1px solid #8c5c20; color: #7a4e18; font-family: 'Courier New', monospace; font-size: 0.65rem; letter-spacing: 0.2em; padding: 0.5rem 1rem; text-decoration: none; transition: background 0.2s, color 0.2s; }
+    .modal-link:hover { background: #8c5c20; color: #f4ede0; }
+    .modal-close { position: absolute; top: 0.7rem; right: 0.8rem; background: rgba(0,0,0,0.08); border: none; color: #6a5a48; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; opacity: 0.55; transition: opacity 0.2s; font-family: 'Courier New', monospace; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { opacity: 1; }
+
+    .end { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; letter-spacing: 0.3em; font-size: 0.65rem; opacity: 0.3; }
+
+    /* ══════════════════════════════════════
+       MOBILE
+    ══════════════════════════════════════ */
+    .mobile-wrapper { display: none; }
+
+    @media (max-width: 768px) {
+      :root { --margin-h: 48px; --margin-side: 0px; }
+      .panorama-section { display: none; }
+      .mobile-wrapper   { display: block; }
+
+      /* Repositionner le contenu intro — plus haut, pas centré */
+      .intro {
+        height: 100svh;
+        justify-content: flex-start;
+        padding-top: 28vh;
+        gap: 1rem;
+      }
+
+      /* Titre ajusté — tient sur 2 lignes max */
+      .intro h1 { font-size: clamp(1.6rem, 8.5vw, 3rem); letter-spacing: 0.06em; }
+
+      /* Sous-titre lisible */
+      .intro p {
+        font-size: 0.78rem;
+        white-space: normal;
+        text-align: center;
+        width: 90%;
+        padding: 0;
+        opacity: 0.85;
+      }
+
+      /* Scroll hint plus visible */
+      .scroll-hint { font-size: 0.68rem; opacity: 0.75; }
+
+      /* Nav plus lisible */
+      .nav-item { font-size: 0.62rem; letter-spacing: 0.12em; }
+
+      /* Nav repositionnée légèrement pour mobile */
+      .nav-bar { top: calc(54vh + 10px); }
+
+      .modal-photo { height: 180px; }
+
+      .mobile-frame { display: grid; grid-template-rows: var(--margin-h) 54vw var(--margin-h); background: var(--black); }
+      .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(0,0,0,0.1); }
+      .mobile-header .brand { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.25em; color: var(--yellow); }
+      .mobile-header .tagline { font-size: 0.5rem; letter-spacing: 0.2em; opacity: 0.3; }
+      .mobile-viewer { overflow: hidden; position: relative; cursor: grab; box-shadow: inset 6px 0 16px rgba(0,0,0,0.12), inset -6px 0 16px rgba(0,0,0,0.12); }
+      .mobile-viewer.dragging { cursor: grabbing; }
+      .mobile-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-top: 1px solid rgba(0,0,0,0.1); gap: 1rem; }
+      .mobile-progress-track { flex: 1; height: 1px; background: rgba(0,0,0,0.15); position: relative; }
+      .mobile-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--yellow); }
+      .mobile-cue { font-size: 0.5rem; letter-spacing: 0.2em; opacity: 0.3; white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; transition: opacity 0.5s; }
+      .mobile-cue svg { width: 12px; animation: bounce-x 1.8s ease-in-out infinite; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ NAV FIXE EN HAUT ══ -->
+  <nav class="nav-bar" id="navBar">
+    <div class="nav-item" id="nav-0"><span class="nav-dot"></span>CRÉATIONS</div>
+    <div class="nav-item" id="nav-1"><span class="nav-dot"></span>ATELIER</div>
+    <div class="nav-item" id="nav-2"><span class="nav-dot"></span>PROCESS</div>
+    <div class="nav-item" id="nav-3"><span class="nav-dot"></span>CONTACT</div>
+  </nav>
+
+  <!-- ══ INTRO ══ -->
+  <section class="intro">
+    <canvas id="pcbCanvas"></canvas>
+
+    <!-- Les deux O sont wrappés pour que JS puisse lire leurs coordonnées -->
+    <p>objets soniques upcyclés · électronique DIY</p>
+
+    <!-- Boombox animée — pile entre le sous-titre et le titre -->
+    <div class="intro-logo" aria-hidden="true">
+      <div class="ilg-box"><span class="ilg-copper">╭</span>────<span class="ilg-copper">╮</span>
+<span class="ilg-copper">│</span> ◎  <span class="ilg-led">•</span><span class="ilg-copper">│</span>
+<span class="ilg-copper">│</span>  <span class="ilg-gold">2</span>  <span class="ilg-copper">│</span>
+<span class="ilg-copper">╰</span>────<span class="ilg-copper">╯</span></div>
+      <div class="ilg-waves"><span>)</span><span>)</span><span>)</span></div>
+    </div>
+
+    <h1 id="mainTitle">Pr<span class="letter-o" id="o1">o</span>t<span class="letter-o" id="o2">o</span>tips<span class="two">2</span>LUX</h1>
+
+    <div class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+      <span>ENTRER DANS L'ATELIER</span>
+    </div>
+  </section>
+
+  <section class="panorama-section" id="section"></section>
+
+  <!-- ══ MOBILE ══ -->
+  <div class="mobile-wrapper">
+    <div class="mobile-frame">
+      <div class="mobile-header">
+        <span class="brand">Prototips2LUX</span>
+        <span class="tagline">GLISSER POUR EXPLORER</span>
+      </div>
+      <div class="mobile-viewer" id="viewerMobile">
+        <div class="panorama-track" id="trackMobile">
+          <img src="panorama.jpg" id="imageMobile" class="panorama-image" alt="Atelier">
+          <div class="hotspot" style="top:45%; left:15%"  data-id="kidradio"     tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">KID'RADIO</span></div>
+          <div class="hotspot" style="top:38%; left:35%"  data-id="boombus"      tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">BOOMBUS</span></div>
+          <div class="hotspot" style="top:42%; left:58%"  data-id="honeymoon"    tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">HONEYMOON</span></div>
+          <div class="hotspot" style="top:50%; left:80%"  data-id="boitemessage" tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">BOÎTE À MESSAGE</span></div>
+        </div>
+      </div>
+      <div class="mobile-footer">
+        <div class="mobile-progress-track"><div class="mobile-progress-fill" id="progressMobile"></div></div>
+        <div class="mobile-cue" id="mobileCue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          GLISSER
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="end">
+    <p>— Prototips2LUX —</p>
+    <p style="font-size:0.5rem; letter-spacing:0.4em; margin-top:0.3rem;">@prototips2lux</p>
+  </section>
+
+  <!-- ══ VIEWER DESKTOP FIXED ══ -->
+  <div class="panorama-viewer" id="viewer">
+    <div class="margin-top">
+      <span class="brand">Prototips2LUX</span>
+      <span class="tagline">objets soniques upcyclés · électronique DIY · Marseille</span>
+    </div>
+    <div class="margin-left">
+      <div class="side-arrow arrow-pulse" id="arrowLeft">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        <span>DÉFILER</span>
+      </div>
+      <span class="side-text">ATELIER · 2024</span>
+    </div>
+    <div class="panorama-window" id="panoramaWindow">
+      <div class="panorama-track" id="track">
+        <img src="panorama.jpg" id="image" class="panorama-image" alt="Atelier Prototips2LUX">
+        <div class="hotspot" style="top:45%; left:15%"  data-id="kidradio"     tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">KID'RADIO</span></div>
+        <div class="hotspot" style="top:38%; left:35%"  data-id="boombus"      tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">BOOMBUS</span></div>
+        <div class="hotspot" style="top:42%; left:58%"  data-id="honeymoon"    tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">HONEYMOON GLASSES</span></div>
+        <div class="hotspot" style="top:50%; left:80%"  data-id="boitemessage" tabindex="0"><div class="hotspot-ring"></div><div class="hotspot-dot"></div><span class="hotspot-label">BOÎTE À MESSAGE</span></div>
+      </div>
+    </div>
+    <div class="margin-right">
+      <div class="side-arrow arrow-pulse" id="arrowRight" style="animation-delay:0.9s">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span>EXPLORER</span>
+      </div>
+      <span class="side-text">MARSEILLE · FR</span>
+    </div>
+    <div class="margin-bottom">
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="scroll-cue" id="scrollCue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        SCROLL POUR EXPLORER
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ══ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <img src="" id="modalPhoto" class="modal-photo" alt="">
+      <div class="modal-body">
+        <div class="modal-tag" id="modalTag">CRÉATION</div>
+        <h2 id="modalTitle">—</h2>
+        <p  id="modalDesc">—</p>
+        <a href="#" class="modal-link" id="modalLink" target="_blank">VOIR SUR INSTAGRAM →</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    // PCB — faisceaux depuis les O vers les onglets nav
+    // ══════════════════════════════════════════════════════
+    const canvas = document.getElementById("pcbCanvas");
+    const ctx    = canvas.getContext("2d");
+
+    const COLORS = [
+      { r: 100, g:  78, b:  50 }, // brun chaud
+      { r: 140, g:  92, b:  32 }, // cuivre foncé
+      { r:  96, g: 112, b: 128 }, // ardoise
+    ];
+
+    const CFG = {
+      traceSpeed:  420,    // px/s
+      traceWidth:  1.2,
+      ledRadius:   3,
+      glowRadius:  10,
+      maxAlpha:    0.7,
+      fadeInLed:   280,    // ms
+      pauseAtO:    320,    // ms
+      // Pas de pause entre faisceaux — démarrage immédiat
+    };
+
+    // Points mesurés après layout
+    let oPoints  = []; // [{x,y},{x,y}]
+    let navPts   = []; // [{x,y}, ...] — point d'arrivée = centre haut de chaque onglet
+    let oIndex   = 0;  // alternance stricte O1/O2
+    let twoPoint = null; // point d'origine des lasers : le "2"
+
+    // Liste des onglets non encore allumés
+    let unlit = [0, 1, 2, 3];
+
+    function measurePoints() {
+      const cr = canvas.getBoundingClientRect();
+
+      oPoints = [];
+      ["o1","o2"].forEach(id => {
+        const el = document.getElementById(id);
+        const r  = el.getBoundingClientRect();
+        oPoints.push({ x: r.left + r.width  / 2 - cr.left - 2,
+                       y: r.top  + r.height / 2 - cr.top - 1 });
+      });
+
+      // Position du "2" — origine des lasers
+      const twoEl2 = document.querySelector(".two");
+      if (twoEl2) {
+        const r = twoEl2.getBoundingClientRect();
+        twoPoint = { x: r.left + r.width  / 2 - cr.left,
+                     y: r.top  + r.height / 2 - cr.top };
+      }
+
+      navPts = [];
+      for (let i = 0; i < 4; i++) {
+        const el  = document.getElementById(`nav-${i}`);
+        const dot = el.querySelector(".nav-dot");
+        const r   = dot ? dot.getBoundingClientRect() : el.getBoundingClientRect();
+        navPts.push({ x: r.left + r.width  / 2 - cr.left,
+                      y: r.top  + r.height / 2 - cr.top  });
+      }
+    }
+
+    // ── Générer un chemin à N virages (3 ou 5) entre from et to ──
+    // Contrainte : ne pas traverser le titre (zone titre = entre from.y et to.y)
+    // Stratégie : toujours monter en premier (vers la nav)
+    function buildMultiPath(from, to, numTurns) {
+      // numTurns = 3 → 4 segments, numTurns = 5 → 6 segments
+      // On génère des points intermédiaires aléatoires dans l'espace
+      // RÈGLE : le chemin monte toujours (Y décroît), jamais en dessous de from.y
+
+      const pts = [{ ...from }];
+      const canvasW = canvas.width;
+
+      if (numTurns === 3) {
+        // from → A → B → C → to (4 segments, 3 virages)
+        // Stratégie : droite/gauche, puis monter, puis aligner sur to
+        const midY = from.y - (from.y - to.y) * (0.3 + Math.random() * 0.3);
+        const midX = 80 + Math.random() * (canvasW - 160);
+
+        pts.push({ x: midX,  y: from.y }); // A — horizontal depuis O
+        pts.push({ x: midX,  y: midY   }); // B — montée verticale
+        pts.push({ x: to.x,  y: midY   }); // C — horizontal vers to.x
+        pts.push({ x: to.x,  y: to.y   }); // to
+
+      } else {
+        // from → A → B → C → D → E → to (6 segments, 5 virages)
+        const y1 = from.y - (from.y - to.y) * (0.15 + Math.random() * 0.2);
+        const y2 = from.y - (from.y - to.y) * (0.45 + Math.random() * 0.2);
+        const y3 = from.y - (from.y - to.y) * (0.75 + Math.random() * 0.15);
+
+        const x1 = 80  + Math.random() * (canvasW - 160);
+        const x2 = 80  + Math.random() * (canvasW - 160);
+
+        pts.push({ x: x1,   y: from.y }); // A
+        pts.push({ x: x1,   y: y1     }); // B
+        pts.push({ x: x2,   y: y1     }); // C
+        pts.push({ x: x2,   y: y2     }); // D
+        pts.push({ x: to.x, y: y2     }); // E
+        pts.push({ x: to.x, y: to.y   }); // to
+      }
+
+      // Construire les segments
+      const segs = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        segs.push({ x1: pts[i].x, y1: pts[i].y, x2: pts[i+1].x, y2: pts[i+1].y });
+      }
+
+      return segs;
+    }
+
+    function segLen(s) { return Math.hypot(s.x2 - s.x1, s.y2 - s.y1); }
+
+    function drawLed(x, y, alpha, col) {
+      const { r, g, b } = col || COLORS[0];
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, CFG.glowRadius);
+      grd.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.7})`);
+      grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.beginPath(); ctx.arc(x, y, CFG.glowRadius, 0, Math.PI * 2);
+      ctx.fillStyle = grd; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, CFG.ledRadius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`; ctx.fill();
+    }
+
+    function drawSeg(seg, alpha, partial, col) {
+      if (!seg || partial <= 0) return;
+      const { r, g, b } = col || COLORS[0];
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x1 + (seg.x2 - seg.x1) * partial, seg.y1 + (seg.y2 - seg.y1) * partial);
+      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+      ctx.lineWidth   = CFG.traceWidth;
+      ctx.lineCap     = "square";
+      ctx.stroke();
+    }
+
+    // ── État ──
+    let state      = "init";
+    let stateTime  = 600;
+    let color      = COLORS[0];
+    let fromPt     = null;
+    let targetNav  = -1;
+    let lastNav    = -1;
+    let segs       = [];       // segments du chemin courant
+    let segLengths = [];
+    let totalLen   = 0;
+    let traceDur   = 0;
+    let traceElap  = 0;
+    let traces     = [];       // {segs, alpha, color}
+
+    function startBeam() {
+      if (oPoints.length < 2 || navPts.length === 0) { measurePoints(); }
+
+      // Choisir une cible différente du dernier laser
+      const pool = (unlit.length > 0 ? unlit : [0,1,2,3]).filter(i => i !== lastNav);
+      const candidates = pool.length > 0 ? pool : (unlit.length > 0 ? unlit : [0,1,2,3]);
+      targetNav = candidates[Math.floor(Math.random() * candidates.length)];
+      lastNav = targetNav;
+
+      color   = { r: 140, g: 92, b: 32 }; // cuivre foncé
+      fromPt  = twoPoint; // toujours depuis le "2"
+
+      const toPt    = navPts[targetNav];
+      const turns   = Math.random() > 0.5 ? 3 : 5;
+      segs          = buildMultiPath(fromPt, toPt, turns);
+      segLengths    = segs.map(segLen);
+      totalLen      = segLengths.reduce((a, b) => a + b, 0);
+      // Vitesse aléatoire entre 420 (actuelle) et 840 (x2)
+      const speed = CFG.traceSpeed * (5 + Math.random() * 5);
+      traceDur = (totalLen / speed) * 1000;
+      traceElap     = 0;
+      state         = "fadeInO";
+      stateTime     = CFG.fadeInLed;
+    }
+
+    function lightNav(hitIdx) {
+      // Cascade rapide : chaque bloc s'allume tour à tour, ordre et intensité aléatoires
+      const numFlashes = 8 + Math.floor(Math.random() * 7); // 8-14 éclairs
+
+      // Les 4 onglets passent au moins une fois, puis on complète avec du random
+      const base = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
+      const seq  = [...base];
+      for (let i = 4; i < numFlashes; i++) seq.push(Math.floor(Math.random() * 4));
+      // Mélange Fisher-Yates
+      for (let i = seq.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [seq[i], seq[j]] = [seq[j], seq[i]];
+      }
+
+      let delay = 0;
+      seq.forEach(idx => {
+        const intensity = 0.15 + Math.random() * 0.85;   // luminosité 15 % → 100 %
+        const flashDur  = 45  + Math.random() * 95;       // durée allumée 45-140 ms
+        const gap       = 30  + Math.random() * 70;       // pause avant prochain 30-100 ms
+
+        setTimeout(() => {
+          const el = document.getElementById(`nav-${idx}`);
+          if (!el || el.classList.contains('lit')) return;
+          // Cuivre, bronze clair ou argent — tirage aléatoire
+          const flashPalette = [
+            { bg: '140,92,32',  glow: '140,92,32',  inner: '170,120,60' }, // cuivre foncé
+            { bg: '160,110,50', glow: '160,110,50', inner: '185,140,85' }, // bronze
+            { bg: '96,112,128', glow: '96,112,128', inner: '120,135,150' }, // ardoise
+          ];
+          const fp = flashPalette[Math.floor(Math.random() * flashPalette.length)];
+          el.style.transition  = 'none';
+          el.style.background  = `rgba(${fp.bg},${intensity.toFixed(2)})`;
+          el.style.boxShadow   = `0 0 ${Math.round(intensity*32)}px rgba(${fp.glow},0.85),`
+                               + ` inset 0 0 ${Math.round(intensity*14)}px rgba(${fp.inner},0.35)`;
+          el.style.color       = '#f4ede0';
+          setTimeout(() => {
+            el.style.transition = '';
+            el.style.background = '';
+            el.style.boxShadow  = '';
+            el.style.color      = '';
+          }, flashDur);
+        }, delay);
+
+        delay += gap;
+      });
+
+      // Allumer définitivement l'onglet cible après la cascade
+      setTimeout(() => {
+        const el = document.getElementById(`nav-${hitIdx}`);
+        if (!el) return;
+        el.classList.add("lit");
+        el.classList.add("flash");
+        setTimeout(() => el.classList.remove("flash"), 500);
+        unlit = unlit.filter(i => i !== hitIdx);
+        const offDelay = 800 + Math.random() * 700;
+        setTimeout(() => {
+          el.classList.remove("lit");
+          if (!unlit.includes(hitIdx)) unlit.push(hitIdx);
+        }, offDelay);
+      }, delay + 30);
+    }
+
+    let lastT = null, animId = null;
+
+    function animate(now) {
+      if (!lastT) lastT = now;
+      const dt = now - lastT;
+      lastT = now;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Traces archivées en fondu lent
+      traces.forEach(t => {
+        t.alpha -= dt * 0.00025;
+        if (t.alpha > 0) {
+          t.segs.forEach(s => drawSeg(s, t.alpha, 1, t.color));
+        }
+      });
+      traces = traces.filter(t => t.alpha > 0);
+
+      if (state === "init" || state === "wait") {
+        // Le laser est déclenché par la vibration du "2", pas par un timer
+
+      } else if (state === "fadeInO") {
+        stateTime -= dt;
+        const a = CFG.maxAlpha * (1 - stateTime / CFG.fadeInLed);
+        drawLed(fromPt.x, fromPt.y, a, color);
+        if (stateTime <= 0) { state = "pauseAtO"; stateTime = CFG.pauseAtO; }
+
+      } else if (state === "pauseAtO") {
+        drawLed(fromPt.x, fromPt.y, CFG.maxAlpha, color);
+        stateTime -= dt;
+        if (stateTime <= 0) { state = "drawTrace"; traceElap = 0; }
+
+      } else if (state === "drawTrace") {
+        drawLed(fromPt.x, fromPt.y, CFG.maxAlpha, color);
+
+        traceElap += dt;
+        const progress = Math.min(traceElap / traceDur, 1);
+        let drawn = progress * totalLen;
+
+        // Dessiner chaque segment selon la progression
+        let accumulated = 0;
+        for (let i = 0; i < segs.length; i++) {
+          const sl = segLengths[i];
+          if (drawn <= 0) break;
+          if (drawn >= sl) {
+            drawSeg(segs[i], CFG.maxAlpha, 1, color);
+            drawn       -= sl;
+            accumulated += sl;
+          } else {
+            drawSeg(segs[i], CFG.maxAlpha, drawn / sl, color);
+            break;
+          }
+        }
+
+        if (progress >= 1) {
+          // Archiver
+          traces.push({ segs: segs.map(s => ({ ...s })), alpha: CFG.maxAlpha * 0.35, color: { ...color } });
+          // Allumer l'onglet
+          lightNav(targetNav);
+          // Pause avant le prochain faisceau
+          state = "wait";
+          stateTime = 2000 + Math.random() * 2000;
+        }
+      }
+
+      animId = requestAnimationFrame(animate);
+    }
+
+    function initPCB() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      measurePoints();
+      if (animId) cancelAnimationFrame(animId);
+      lastT = null; state = "init"; stateTime = 600; traces = [];
+      oIndex = 0; unlit = [0, 1, 2, 3];
+      animId = requestAnimationFrame(animate);
+    }
+
+    window.addEventListener("load",   initPCB);
+    window.addEventListener("resize", () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      measurePoints();
+    });
+
+    // Stop quand intro hors vue
+    const introEl  = document.querySelector(".intro");
+    const introObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        if (!animId) { lastT = null; animId = requestAnimationFrame(animate); }
+      } else {
+        cancelAnimationFrame(animId); animId = null;
+      }
+    }, { threshold: 0 });
+    introObs.observe(introEl);
+
+    // ── Vibration du "2" ──
+    const twoEl = document.querySelector(".two");
+    function vibrate() {
+      const dur = 800 + Math.random() * 2200, start = performance.now();
+      twoEl.classList.add("vibrating");
+      // Déclencher un laser depuis le "2" au début de chaque vibration
+      if (state === "wait" || state === "init") {
+        measurePoints();
+        startBeam();
+      }
+      function shake(now) {
+        if (now - start >= dur) {
+          twoEl.style.transform = "translate(0,0)";
+          twoEl.classList.remove("vibrating");
+          setTimeout(vibrate, 2000 + Math.random() * 2000);
+          return;
+        }
+        const a = 0.5 + Math.random() * 1.0;
+        twoEl.style.transform = `translate(${(Math.random()-.5)*a*2}px,${(Math.random()-.5)*a*2}px)`;
+        requestAnimationFrame(shake);
+      }
+      requestAnimationFrame(shake);
+    }
+    setTimeout(vibrate, 1500 + Math.random() * 2000);
+
+    // ══════════════════════════════════════════
+    // DONNÉES CRÉATIONS
+    // ══════════════════════════════════════════
+    const CREATIONS = {
+      kidradio:     { photo:"2.jpg", tag:"BOOMBOX UPCYCLÉE",       title:"KID'RADIO",         desc:"Valise vintage années 60 transformée en enceinte 4 voies. Haut-parleurs récupérés, ampli Class-D intégré, finition cuir d'origine conservée.",          link:"https://instagram.com/prototips2lux" },
+      boombus:      { photo:"1.jpg", tag:"BOOMBOX UPCYCLÉE",       title:"BOOMBUS",            desc:"Flight case aluminium reconverti en boombox multi-haut-parleurs. Tweeters en façade supérieure, woofer latéral, graffiti jaune signature.",            link:"https://instagram.com/prototips2lux" },
+      honeymoon:    { photo:"3.jpg", tag:"WEARABLE TECH",          title:"HONEYMOON GLASSES",  desc:"Serre-tête électronique — Arduino, capteurs, haut-parleur central, boutons et potentiomètres. Un objet sonique à porter autant qu'à exposer.",        link:"https://instagram.com/prototips2lux" },
+      boitemessage: { photo:"4.jpg", tag:"INSTALLATION LUMINEUSE", title:"BOÎTE À MESSAGE",    desc:"Boîtier translucide rempli de fils argentés et d'une matrice de LEDs RGB multicolores. Connecteurs banane colorés, figurine dorée en antenne.",       link:"https://instagram.com/prototips2lux" },
+    };
+
+    const clamp    = (v,a,b) => Math.min(Math.max(v,a),b);
+    const isMobile = () => window.innerWidth <= 768 || 'ontouchstart' in window;
+
+    function getImageDisplayWidth(img, containerH) {
+      if (img.naturalWidth && img.naturalHeight) return img.naturalWidth * (containerH / img.naturalHeight);
+      return img.getBoundingClientRect().width;
+    }
+
+    const overlay=document.getElementById("modalOverlay"), modalPhoto=document.getElementById("modalPhoto"),
+          modalTag=document.getElementById("modalTag"), modalTitle=document.getElementById("modalTitle"),
+          modalDesc=document.getElementById("modalDesc"), modalLink=document.getElementById("modalLink"),
+          modalClose=document.getElementById("modalClose");
+
+    function openModal(id) {
+      const d = CREATIONS[id]; if (!d) return;
+      modalPhoto.src=d.photo; modalPhoto.alt=d.title; modalTag.textContent=d.tag;
+      modalTitle.textContent=d.title; modalDesc.textContent=d.desc; modalLink.href=d.link;
+      overlay.classList.add("open"); document.body.style.overflow="hidden";
+    }
+
+    function closeModal() { overlay.classList.remove("open"); document.body.style.overflow=""; }
+
+    modalClose.addEventListener("click", closeModal);
+    overlay.addEventListener("click", e => { if (e.target===overlay) closeModal(); });
+    document.addEventListener("keydown", e => { if (e.key==="Escape") closeModal(); });
+
+    document.querySelectorAll(".hotspot").forEach(h => {
+      const id = h.dataset.id;
+      h.addEventListener("click",   () => openModal(id));
+      h.addEventListener("keydown", e => { if (e.key==="Enter") openModal(id); });
+    });
+
+    const section=document.getElementById("section"), viewer=document.getElementById("viewer"),
+          track=document.getElementById("track"), image=document.getElementById("image"),
+          progressFill=document.getElementById("progressFill"), progressPct=document.getElementById("progressPct"),
+          scrollCue=document.getElementById("scrollCue"), arrowLeft=document.getElementById("arrowLeft"),
+          arrowRight=document.getElementById("arrowRight"), panoramaWindow=document.getElementById("panoramaWindow");
+
+    let cueHidden = false;
+
+    function updateDesktop() {
+      if (isMobile()) return;
+      const rect=section.getBoundingClientRect(), scrollable=section.offsetHeight-window.innerHeight;
+      const inView=rect.top<=0 && rect.bottom>=window.innerHeight;
+      viewer.classList.toggle("active", inView);
+      if (!inView || scrollable<=0) return;
+      const progress=clamp(-rect.top/scrollable,0,1);
+      const imgW=getImageDisplayWidth(image, panoramaWindow.offsetHeight);
+      const maxMove=Math.max(imgW-panoramaWindow.offsetWidth,0);
+      track.style.transform=`translate3d(${-progress*maxMove}px,0,0)`;
+      progressFill.style.width=`${progress*100}%`;
+      progressPct.textContent=`${Math.round(progress*100)}%`;
+      if (progress>0.03 && !cueHidden) { cueHidden=true; [scrollCue,arrowLeft,arrowRight].forEach(e=>e.classList.add("hidden")); }
+      if (progress<0.01 && cueHidden)  { cueHidden=false; [scrollCue,arrowLeft,arrowRight].forEach(e=>e.classList.remove("hidden")); }
+    }
+
+    window.addEventListener("scroll", updateDesktop, {passive:true});
+    window.addEventListener("resize", updateDesktop);
+    image.addEventListener("load", updateDesktop);
+    if (image.complete && image.naturalWidth) updateDesktop();
+
+    const viewerMobile=document.getElementById("viewerMobile"), trackMobile=document.getElementById("trackMobile"),
+          imageMobile=document.getElementById("imageMobile"), progressMobile=document.getElementById("progressMobile"),
+          mobileCue=document.getElementById("mobileCue");
+
+    let dragStartX=0,dragStartOff=0,currentOffset=0,isDragging=false,velocity=0,lastDX=0,lastDT=0,rafId=null,mobileCueHidden=false;
+
+    function maxMobileMove() { return Math.max(getImageDisplayWidth(imageMobile,viewerMobile.offsetHeight)-viewerMobile.offsetWidth,0); }
+
+    function applyMobileOffset(offset) {
+      const max=maxMobileMove(); currentOffset=clamp(offset,-max,0);
+      trackMobile.style.transform=`translate3d(${currentOffset}px,0,0)`;
+      const pct=(-currentOffset/(max||1))*100; progressMobile.style.width=`${pct}%`;
+      if (pct>3 && !mobileCueHidden) { mobileCueHidden=true; mobileCue.style.opacity="0"; }
+    }
+
+    viewerMobile.addEventListener("touchstart",e=>{ cancelAnimationFrame(rafId); isDragging=true; dragStartX=e.touches[0].clientX; dragStartOff=currentOffset; lastDX=dragStartX; lastDT=Date.now(); velocity=0; viewerMobile.classList.add("dragging"); },{passive:true});
+    viewerMobile.addEventListener("touchmove",e=>{ if(!isDragging)return; const x=e.touches[0].clientX,now=Date.now(),dt=now-lastDT; if(dt>0)velocity=(x-lastDX)/dt; lastDX=x; lastDT=now; applyMobileOffset(dragStartOff+(x-dragStartX)); },{passive:true});
+    viewerMobile.addEventListener("touchend",()=>{ isDragging=false; viewerMobile.classList.remove("dragging"); function inertia(){if(Math.abs(velocity)<0.05)return; velocity*=0.92; applyMobileOffset(currentOffset+velocity*16); rafId=requestAnimationFrame(inertia);} rafId=requestAnimationFrame(inertia); });
+
+    imageMobile.addEventListener("load",()=>applyMobileOffset(0));
+    if(imageMobile.complete && imageMobile.naturalWidth) applyMobileOffset(0);
+
+    function applyMode() {
+      const mobile=isMobile();
+      document.querySelector(".mobile-wrapper").style.display  =mobile?"block":"none";
+      document.querySelector(".panorama-section").style.display=mobile?"none":"block";
+      if(!mobile) viewer.classList.remove("active");
+    }
+    applyMode();
+    window.addEventListener("resize",applyMode);
+  </script>
+</body>
+</html>

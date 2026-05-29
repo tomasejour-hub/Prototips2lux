@@ -1,0 +1,11 @@
+.logo {
+  font-family: 'Courier New', monospace;
+  font-size: 48px;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.highlight {
+  color: #d4ff00; /* ton jaune */
+  letter-spacing: 4px;
+}
